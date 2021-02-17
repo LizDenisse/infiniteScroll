@@ -2,15 +2,28 @@ const imageContainer = document.getElementById('image-container');
 const loader= document.getElementById('loader');
 
 let photosArray=[];
-
-
-
+let ready =false; 
+let imagesLoaded=0;
+let totalImages=0; 
 
 // unsplash API 
 
-const count= 10; 
+const count= 30; 
 const apiKey= 'NL4Y3T9Dq7L2SZwlivG7kBHpfgXOMlImPxIJOtCRoEE';
 const apiUrl= `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${count}`;
+
+//check if all images were loaded 
+
+function imageLoaded() {
+    console.log('image loaded');
+    imagesLoaded++;
+
+    if(imagesLoaded===totalImages) {
+        ready= true;
+        loader.hidden=true;
+        console.log('ready=', ready);
+    }
+}
 
 // Helper Function to Set Attributes on DOM Elements 
 
@@ -20,12 +33,12 @@ function setAttributes(element, attributes) {
     {
         element.setAttribute(key, attributes[key])
     }
-
 }
 //Create Elements for Links & Photos to DOM  
 
 function displayPhotos() {
-
+totalImages=photosArray.length; 
+console.log('total images', totalImages);
 //Run Function  fro each obkect in photoArray 
 photosArray.forEach((photo) => {
  
@@ -52,7 +65,9 @@ photosArray.forEach((photo) => {
       src: photo.urls.regular,
       alt: photo.alt_description,
       title: photo.alt_description, 
-  })
+  });
+  img.addEventListener('load', imageLoaded);
+
 
     item.appendChild(img);
     imageContainer.appendChild(item);
@@ -60,6 +75,9 @@ photosArray.forEach((photo) => {
 });
 }
 
+//Event listener, check when each is finished loading 
+
+ 
 
 // Ger photos from Unsplash APi  
 
@@ -76,7 +94,7 @@ async function getPhotos() {
 // check to see if scrolling near bottom of page, load more photos 
 
 window.addEventListener('scroll', () => {
-    if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000)
+    if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000 && ready)
     {
         getPhotos();
         // console.log('window.innerHeight:', window.innerHeight);
@@ -86,6 +104,7 @@ window.addEventListener('scroll', () => {
         console.log('load more');
     }
 });
- 
+
+
 //on load  
 getPhotos();
